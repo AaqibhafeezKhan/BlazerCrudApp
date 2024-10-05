@@ -1,0 +1,61 @@
+
+@page "/products"
+@inject BlazorCrudApp.Server.Services.ProductService ProductService
+
+<h3>Product List</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in ProductService.GetAll())
+        {
+            <tr>
+                <td>@product.Name</td>
+                <td>@product.Price</td>
+                <td>
+                    <button @onclick="() => EditProduct(product.Id)">Edit</button>
+                    <button @onclick="() => DeleteProduct(product.Id)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h3>Add New Product</h3>
+<input type="text" @bind="newProductName" placeholder="Product Name" />
+<input type="number" @bind="newProductPrice" placeholder="Price" />
+<button @onclick="AddProduct">Add</button>
+
+@code {
+    private string newProductName;
+    private decimal newProductPrice;
+
+    private void AddProduct()
+    {
+        ProductService.Add(new Product { Name = newProductName, Price = newProductPrice });
+        newProductName = string.Empty;
+        newProductPrice = 0;
+    }
+
+    private void EditProduct(int id)
+    {
+        var product = ProductService.GetById(id);
+        if (product != null)
+        {
+            newProductName = product.Name;
+            newProductPrice = product.Price;
+            ProductService.Delete(id); // Remove for editing
+        }
+    }
+
+    private void DeleteProduct(int id)
+    {
+        ProductService.Delete(id);
+    }
+}
